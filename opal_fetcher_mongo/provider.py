@@ -1,4 +1,4 @@
-# Imports 
+# Imports
 from typing import Optional, List
 from pydantic import BaseModel, Field
 import motor.motor_asyncio
@@ -6,13 +6,14 @@ from opal_common.fetcher.fetch_provider import BaseFetchProvider
 from opal_common.fetcher.events import FetcherConfig, FetchEvent
 from opal_common.logger import logger
 
+
 # Configuration for MongoDB connection
 class MongoConnectionParams(BaseModel):
     """_summary_
 
     Args:
         BaseModel (_type_): _description_
-    """    
+    """
     """
     MongoDB connection parameters....
     """
@@ -22,6 +23,7 @@ class MongoConnectionParams(BaseModel):
     query: dict = Field(default={}, description="Query to fetch data")
     fetch_one: bool = Field(False, description="Fetch only one document")
 
+
 # Configuration for the MongoDB Fetcher
 class MongoFetcherConfig(FetcherConfig):
     """
@@ -29,8 +31,8 @@ class MongoFetcherConfig(FetcherConfig):
     """
     fetcher: str = "MongoFetchProvider"
     connection_params: Optional[MongoConnectionParams] = Field(
-        ..., description="MongoDB connection parameters for fetcher..."
-    )
+        ..., description="MongoDB connection parameters for fetcher...")
+
 
 # Event shape for the MongoDB Fetch Provider
 class MongoFetchEvent(FetchEvent):
@@ -40,18 +42,22 @@ class MongoFetchEvent(FetchEvent):
     fetcher: str = "MongoFetchProvider"
     config: MongoFetcherConfig = None
 
+
 # MongoDB Fetch Provider implementation
 class MongoFetchProvider(BaseFetchProvider):
+
     def __init__(self, event: MongoFetchEvent) -> None:
         """
         Args:
             event (MongoFetchEvent): _description_
-        """        
+        """
         if event.config is None:
             event.config = MongoFetcherConfig()
         super().__init__(event)
-        self.client = motor.motor_asyncio.AsyncIOMotorClient(event.config.connection_params.uri)
-        self.collection = self.client[event.config.connection_params.database][event.config.connection_params.collection]
+        self.client = motor.motor_asyncio.AsyncIOMotorClient(
+            event.config.connection_params.uri)
+        self.collection = self.client[event.config.connection_params.database][
+            event.config.connection_params.collection]
 
     def parse_event(self, event: FetchEvent) -> MongoFetchEvent:
         """
@@ -60,10 +66,11 @@ class MongoFetchProvider(BaseFetchProvider):
 
         Returns:
             MongoFetchEvent: _description_
-        """        
-        return MongoFetchEvent(**event.dict(exclude={"config"}), config=event.config)
+        """
+        return MongoFetchEvent(**event.dict(exclude={"config"}),
+                               config=event.config)
 
-    async def __aenter__(self):      
+    async def __aenter__(self):
         self._event: MongoFetchEvent  # type casting
         return self
 
@@ -73,7 +80,7 @@ class MongoFetchProvider(BaseFetchProvider):
             exc_type (_type_, optional): _description_. Defaults to None.
             exc_val (_type_, optional): _description_. Defaults to None.
             tb (_type_, optional): _description_. Defaults to None.
-        """        
+        """
         self.client.close()
 
     async def _fetch_(self):
@@ -85,13 +92,17 @@ class MongoFetchProvider(BaseFetchProvider):
             )
             return
 
-        logger.debug(f"{self.__class__.__name__} fetching from {self._event.config.connection_params.uri}")
+        logger.debug(
+            f"{self.__class__.__name__} fetching from {self._event.config.connection_params.uri}"
+        )
 
         if self._event.config.connection_params.fetch_one:
-            document = await self.collection.find_one(self._event.config.connection_params.query)
+            document = await self.collection.find_one(
+                self._event.config.connection_params.query)
             return [document] if document else []
         else:
-            cursor = self.collection.find(self._event.config.connection_params.query)
+            cursor = self.collection.find(
+                self._event.config.connection_params.query)
             documents = await cursor.to_list(length=None)
             return documents
 
@@ -99,7 +110,7 @@ class MongoFetchProvider(BaseFetchProvider):
         """
         Args:
             records (List[dict]): _description_
-        """        
+        """
         self._event: MongoFetchEvent  # type casting
 
         # when fetch_one is true, we want to return a dict (and not a list)
@@ -110,4 +121,3 @@ class MongoFetchProvider(BaseFetchProvider):
                 return {}
         else:
             return records
-
