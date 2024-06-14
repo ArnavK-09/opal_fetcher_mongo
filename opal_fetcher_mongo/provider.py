@@ -9,12 +9,10 @@ from opal_common.logger import logger
 
 # Configuration for MongoDB connection
 class MongoConnectionParams(BaseModel):
-    """_summary_
-
+    """
     Args:
         BaseModel (_type_): _description_
-    """
-    """
+
     MongoDB connection parameters....
     """
     uri: str = Field(..., description="MongoDB connection string")
