@@ -18,15 +18,6 @@ The MongoDB OPAL Fetcher is a custom fetch provider that seamlessly integrates M
 - 💎 **Single or Multiple**: Fetch one document or many, you decide!
 - 🔒 **Secure**: Leverages MongoDB's security features for safe data access.
 
-### 🛠️ Installation
-
-Getting started is a breeze:
-
-1. Clone this repo: `git clone https://github.com/your-username/mongodb-opal-fetcher.git`
-2. Install dependencies: `pip install -r requirements.txt`
-3. Build your custom OPAL client Docker image (see Dockerfile)
-4. 🚀 Launch and enjoy the magic!
-
 > [!IMPORTANT]
 >
 > ### 📜 License
